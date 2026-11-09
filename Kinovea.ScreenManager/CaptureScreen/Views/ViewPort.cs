@@ -39,6 +39,8 @@ namespace Kinovea.ScreenManager
         private bool dblClickZoom = true;
         private bool showRecordingIndicator = true;
         private Size referenceSize;             // Original image size after optional rotation.
+        private bool fitToPane;
+        private Rectangle unsplitDisplayRectangle;
         private Rectangle displayRectangle;     // Position and size of the region of the viewport where we draw the image.
         private ImageManipulator imageManipulator = new ImageManipulator();
         
@@ -72,9 +74,39 @@ namespace Kinovea.ScreenManager
             toaster = new MessageToaster(this);
         }
         
+        internal bool FitToPane
+        {
+            get { return fitToPane; }
+            set
+            {
+                if (fitToPane == value)
+                    return;
+
+                fitToPane = value;
+                if (fitToPane)
+                {
+                    unsplitDisplayRectangle = displayRectangle;
+                    FitImageToPane();
+                }
+                else if (!referenceSize.IsEmpty)
+                {
+                    InitializeDisplayRectangle(unsplitDisplayRectangle, referenceSize);
+                    controller.UpdateDisplayRectangle(displayRectangle);
+                    Invalidate();
+                }
+            }
+        }
+
         public void InitializeDisplayRectangle(Rectangle saved, Size referenceSize)
         {
             this.referenceSize = referenceSize;
+            if (fitToPane)
+            {
+                unsplitDisplayRectangle = saved;
+                FitImageToPane();
+                return;
+            }
+
             InitializeDisplayRectangle(saved);
             if (displayRectangle != saved)
                 controller.UpdateDisplayRectangle(displayRectangle);
@@ -517,6 +549,21 @@ namespace Kinovea.ScreenManager
         protected override void OnResize(EventArgs e)
         {
             base.OnResize(e);
+            if (fitToPane)
+                FitImageToPane();
+        }
+
+        private void FitImageToPane()
+        {
+            if (referenceSize.IsEmpty || ClientSize.Width <= 0 || ClientSize.Height <= 0)
+                return;
+
+            displayRectangle = UIHelper.RatioStretch(referenceSize, ClientSize);
+            displayRectangle.X = 0;
+            AfterDisplayRectangleChanged();
+            zoomHelper.Value = (float)displayRectangle.Width / referenceSize.Width;
+            controller.UpdateDisplayRectangle(displayRectangle);
+            Invalidate();
         }
         
     }

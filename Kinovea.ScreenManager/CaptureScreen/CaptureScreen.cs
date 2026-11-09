@@ -1357,7 +1357,7 @@ namespace Kinovea.ScreenManager
 
         private void ViewportController_DisplayRectangleUpdated(object sender, EventArgs e)
         {
-            if (!cameraLoaded || cameraSummary == null)
+            if (!cameraLoaded || cameraSummary == null || viewportController.View.FitToPane)
                 return;
 
             cameraSummary.UpdateDisplayRectangle(viewportController.DisplayRectangle);

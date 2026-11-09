@@ -656,7 +656,7 @@ namespace Kinovea.Root
       this.btnCaptureFolderInsertVariable.Name = "btnCaptureFolderInsertVariable";
       this.btnCaptureFolderInsertVariable.Size = new System.Drawing.Size(131, 23);
       this.btnCaptureFolderInsertVariable.TabIndex = 51;
-      this.btnCaptureFolderInsertVariable.Text = "Insert a variable…";
+      this.btnCaptureFolderInsertVariable.Text = "Insert a variable\u2026";
       this.btnCaptureFolderInsertVariable.UseVisualStyleBackColor = true;
       this.btnCaptureFolderInsertVariable.Click += new System.EventHandler(this.btnCaptureFolderInsertVariable_Click);
       // 
@@ -943,7 +943,7 @@ namespace Kinovea.Root
       this.btnFilesInsertVariable.Name = "btnFilesInsertVariable";
       this.btnFilesInsertVariable.Size = new System.Drawing.Size(131, 23);
       this.btnFilesInsertVariable.TabIndex = 60;
-      this.btnFilesInsertVariable.Text = "Insert a variable…";
+      this.btnFilesInsertVariable.Text = "Insert a variable\u2026";
       this.btnFilesInsertVariable.UseVisualStyleBackColor = true;
       this.btnFilesInsertVariable.Click += new System.EventHandler(this.btnFilesInsertVariable_Click);
       // 

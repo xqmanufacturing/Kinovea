@@ -80,6 +80,9 @@ namespace Kinovea.ScreenManager
         #region Members
         private CaptureScreen presenter;
         private CapturedFilesView capturedFilesView;
+        private SplitContainer pressureSplit;
+        private Viewport cameraViewport;
+        private PressureMatView pressureMatView;
         private bool capturedFilesPanelForceCollapsed = false;
         private bool recording;
         private bool grabbing;
@@ -158,12 +161,71 @@ namespace Kinovea.ScreenManager
         
         public void BeforeClose()
         {
+            pressureMatView?.Dispose();
         }
 
         public void SetViewport(Viewport viewport)
         {
-            pnlViewport.Controls.Add(viewport);
+            cameraViewport = viewport;
+            pressureSplit = new SplitContainer
+            {
+                Dock = DockStyle.Fill,
+                Size = pnlViewport.ClientSize,
+                Orientation = Orientation.Vertical,
+                SplitterWidth = 6,
+                BackColor = SystemColors.ControlDark,
+                Panel2Collapsed = true
+            };
             viewport.Dock = DockStyle.Fill;
+            pressureSplit.Panel1.Controls.Add(viewport);
+
+            var toolbar = new ToolStrip
+            {
+                GripStyle = ToolStripGripStyle.Hidden,
+                Dock = DockStyle.Top
+            };
+            var pressureButton = new ToolStripButton("Pressure mat")
+            {
+                CheckOnClick = true,
+                Alignment = ToolStripItemAlignment.Right
+            };
+            pressureButton.CheckedChanged += (sender, args) => ShowPressureMat(pressureButton.Checked);
+            toolbar.Items.Add(pressureButton);
+            var layout = new TableLayoutPanel
+            {
+                Dock = DockStyle.Fill,
+                ColumnCount = 1,
+                RowCount = 2
+            };
+            layout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
+            layout.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+            layout.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
+            toolbar.Margin = Padding.Empty;
+            pressureSplit.Margin = Padding.Empty;
+            layout.Controls.Add(toolbar, 0, 0);
+            layout.Controls.Add(pressureSplit, 0, 1);
+            pnlViewport.Controls.Add(layout);
+        }
+
+        private void ShowPressureMat(bool visible)
+        {
+            if (!visible)
+            {
+                pressureSplit.Panel2Collapsed = true;
+                cameraViewport.FitToPane = false;
+                return;
+            }
+
+            bool firstOpen = pressureMatView == null;
+            cameraViewport.FitToPane = true;
+            pressureSplit.Panel2Collapsed = false;
+            if (firstOpen)
+            {
+                pressureSplit.SplitterDistance = pressureSplit.ClientSize.Width * 3 / 5;
+                pressureMatView = new PressureMatView { Dock = DockStyle.Fill };
+                pressureSplit.Panel2.Controls.Add(pressureMatView);
+                pressureMatView.LoadDashboard();
+            }
         }
         public void SetCapturedFilesView(CapturedFilesView capturedFilesView)
         {
